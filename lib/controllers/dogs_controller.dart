@@ -5,6 +5,7 @@ class DogsControllers extends GetxController {
   var isLoading = true.obs;
   var dogs = Map<String, dynamic>().obs;
   var dogsImages = List<String>.empty().obs;
+  var searchResult = List<String>.empty().obs;
 
   @override
   void onInit() {
@@ -39,6 +40,14 @@ class DogsControllers extends GetxController {
       print(err);
     } finally {
       isLoading(false);
+    }
+  }
+
+  void searchDog(String search) {
+    var list = dogs.keys.toList();
+    if (list.contains(search)) {
+      searchResult.assign(
+          list.elementAt(list.indexWhere((element) => element == search)));
     }
   }
 

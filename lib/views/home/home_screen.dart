@@ -10,7 +10,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   DogsControllers _controller = Get.put(DogsControllers());
-
+  final _searchController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,13 +25,36 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         } else {
           var dogList = _controller.dogs.keys.toList();
-          return ListView.builder(
-            itemCount: dogList.length,
-            itemBuilder: (context, index) {
-              return DogsListTile(
-                dog: dogList[index],
-              );
-            },
+          return Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(9),
+                    ),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                          icon: Icon(Icons.search),
+                          labelText: "Search any dog"),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                      onPressed: () {},
+                      icon: Icon(Icons.search),
+                      label: Text("Search"))
+                ],
+              ),
+              ListView.builder(
+                itemCount: dogList.length,
+                itemBuilder: (context, index) {
+                  return DogsListTile(
+                    dog: dogList[index],
+                  );
+                },
+              )
+            ],
           );
         }
       }),
