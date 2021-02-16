@@ -3,9 +3,9 @@ import 'package:get/get.dart';
 
 class DogsControllers extends GetxController {
   var isLoading = true.obs;
-  var dogs = Map<String, dynamic>().obs;
+  var dogs = Map<String, List<String>>().obs;
   var dogsImages = List<String>.empty().obs;
-  var searchResult = List<String>.empty().obs;
+  Map<String, List<String>> initDogList = Map();
 
   @override
   void onInit() {
@@ -19,6 +19,7 @@ class DogsControllers extends GetxController {
       var response = await ApiModule.fetchAllBreeds();
 
       if (response != null) {
+        initDogList.addAll(response.breeds);
         dogs.assignAll(response.breeds);
       }
     } catch (err) {
@@ -28,26 +29,54 @@ class DogsControllers extends GetxController {
     }
   }
 
-  void fetchByBreed(String breed) async {
+  void fetchImages(Map<dynamic, dynamic> dog) async {
     try {
       isLoading(true);
-      var response = await ApiModule.fetchByBreed(breed);
-      print(response.images);
+      var response, breed, subBreed;
+
+      if (dog.values.isNotEmpty && dog.keys.isNotEmpty) {
+        for (var key in dog.keys.toList()) breed = key;
+        subBreed = dog[breed];
+      } else {
+        for (var key in dog.keys.toList()) breed = key;
+      }
+
+      print(breed);
+      print(subBreed);
+
+      response = await ApiModule.fetchImages(breed, subBreed);
+
       if (response != null) {
         dogsImages.assignAll(response.images);
       }
-    } catch (err) {
-      print(err);
     } finally {
       isLoading(false);
     }
   }
 
   void searchDog(String search) {
-    var list = dogs.keys.toList();
-    if (list.contains(search)) {
-      searchResult.assign(
-          list.elementAt(list.indexWhere((element) => element == search)));
+    var searchResult;
+
+    for (var dog in initDogList.keys.toList()) {
+      if (dog.compareTo(search) == 0) {
+        searchResult = {dog: initDogList[dog]};
+      }
+    }
+
+    dogs.assignAll(searchResult);
+  }
+
+  void filter(String filter) {
+    if (filter.compareTo("filterBySubBreed") == 0) {
+      var allSubs = Map<String, List<String>>();
+
+      initDogList.forEach((key, value) {
+        if (value.isNotEmpty) allSubs.addAll({key: value});
+      });
+
+      dogs.assignAll(allSubs);
+    } else {
+      dogs.assignAll(initDogList);
     }
   }
 

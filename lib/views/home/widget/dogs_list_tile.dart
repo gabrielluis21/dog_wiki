@@ -3,43 +3,79 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class DogsListTile extends StatelessWidget {
-  final String dog;
-
-  DogsListTile({this.dog});
+  final String breed;
+  final List<String> subBreed;
+  DogsListTile({this.breed, this.subBreed});
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Get.find<DogsControllers>().fetchByBreed(dog);
-        Get.toNamed('/dog', arguments: dog);
-      },
-      child: Container(
-        height: 60,
-        width: 50,
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(11),
-        ),
-        child: Card(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Center(
-                child: Text(
-                  dog,
+    return subBreed.isNotEmpty
+        ? Card(
+            margin: EdgeInsets.only(left: 8, right: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+                Text(
+                  breed,
                   style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800),
+                      color: Colors.red,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w500),
                 ),
+                Divider(
+                  height: 5,
+                ),
+                Container(
+                  height: subBreed.length <= 3 ? 90 : 127,
+                  child: Center(
+                    child: ListView.builder(
+                      padding: EdgeInsets.all(8),
+                      itemCount: subBreed.length,
+                      itemBuilder: (context, index) {
+                        return GestureDetector(
+                          onTap: () {
+                            var dog = {breed: subBreed[index]};
+                            Get.find<DogsControllers>().fetchImages(dog);
+                            Get.toNamed('/dog', arguments: dog);
+                          },
+                          child: Text(
+                            '${subBreed[index]}',
+                            style: TextStyle(fontSize: 18),
+                            textAlign: TextAlign.center,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        : GestureDetector(
+            onTap: () {
+              var dog = {breed: subBreed};
+              Get.find<DogsControllers>().fetchImages(dog);
+              Get.toNamed('/dog', arguments: dog);
+            },
+            child: Card(
+              margin: EdgeInsets.only(left: 8, right: 8),
+              child: Column(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Text(
+                    breed,
+                    style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 32,
+                        fontWeight: FontWeight.w500),
+                  ),
+                  Divider(
+                    height: 5,
+                  ),
+                  Text("No SubBreed")
+                ],
               ),
-            ],
-          ),
-        ),
-      ),
-    );
+            ),
+          );
   }
 }

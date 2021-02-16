@@ -18,8 +18,13 @@ class ApiModule {
     }
   }
 
-  static Future<DogImages> fetchByBreed(String breed) async {
-    var response = await client.get(_url + '/breed/$breed/images');
+  static Future<DogImages> fetchImages(String breed, dynamic subBreed) async {
+    var response;
+    if (subBreed.isEmpty) {
+      response = await client.get(_url + '/breed/$breed/images');
+    } else {
+      response = await client.get(_url + '/breed/$breed/$subBreed/images');
+    }
 
     if (response.statusCode == 200) {
       var jsonString = response.body;

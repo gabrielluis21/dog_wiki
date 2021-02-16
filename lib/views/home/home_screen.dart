@@ -14,9 +14,35 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text("Dog Wiki"),
         centerTitle: true,
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value.contains("clearSearch")) {
+                _searchController.text = "";
+                _controller.filter('showAll');
+              }
+              _controller.filter(value);
+            },
+            itemBuilder: (context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: "showAll",
+                child: Text('Show All'),
+              ),
+              const PopupMenuItem<String>(
+                value: "filterBySubBreed",
+                child: Text('Show All SubBreed'),
+              ),
+              const PopupMenuItem<String>(
+                value: "vlearSearch",
+                child: Text('Clear Search'),
+              ),
+            ],
+          )
+        ],
       ),
       body: Obx(() {
         if (_controller.isLoading.value) {
@@ -24,35 +50,45 @@ class _HomeScreenState extends State<HomeScreen> {
             child: CircularProgressIndicator(),
           );
         } else {
-          var dogList = _controller.dogs.keys.toList();
           return Column(
             children: [
-              Row(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(9),
+              Align(
+                alignment: Alignment.topCenter,
+                child: Row(
+                  children: [
+                    Container(
+                      height: 50,
+                      width: 250,
+                      child: TextFormField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(),
+                            icon: Icon(Icons.search),
+                            labelText: "Search any dog"),
+                      ),
                     ),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                          icon: Icon(Icons.search),
-                          labelText: "Search any dog"),
-                    ),
-                  ),
-                  ElevatedButton.icon(
-                      onPressed: () {},
-                      icon: Icon(Icons.search),
-                      label: Text("Search"))
-                ],
+                    ElevatedButton.icon(
+                        style: ButtonStyle(),
+                        onPressed: () {
+                          _controller.searchDog(_searchController.text);
+                        },
+                        icon: Icon(Icons.search),
+                        label: Text("Search"))
+                  ],
+                ),
               ),
-              ListView.builder(
-                itemCount: dogList.length,
-                itemBuilder: (context, index) {
-                  return DogsListTile(
-                    dog: dogList[index],
-                  );
-                },
+              Flexible(
+                fit: FlexFit.tight,
+                flex: 6,
+                child: ListView.builder(
+                  itemCount: _controller.dogs.length,
+                  itemBuilder: (context, index) {
+                    var breedList = _controller.dogs.keys.toList();
+                    var subBreedList = _controller.dogs.values.toList();
+                    return DogsListTile(
+                        breed: breedList[index], subBreed: subBreedList[index]);
+                  },
+                ),
               )
             ],
           );
